@@ -1,0 +1,1 @@
+DROP CONSTRAINT ON (u:User) ASSERT u.username IS UNIQUE;
