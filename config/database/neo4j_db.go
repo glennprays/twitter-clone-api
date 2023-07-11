@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 
@@ -9,6 +10,7 @@ import (
 )
 
 func ConnectDB() (neo4j.DriverWithContext, error) {
+	fmt.Println("host: " + os.Getenv("DB_HOST"))
 	ctx := context.Background()
 	uri := "neo4j://" + os.Getenv("DB_HOST") + ":" + os.Getenv("DB_PORT")
 	username := os.Getenv("DB_USER")

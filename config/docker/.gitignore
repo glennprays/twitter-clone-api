@@ -1,0 +1,7 @@
+# Ignore Docker-related directories and files
+app/
+conf/
+data/
+import/
+logs/
+neo4j.conf/

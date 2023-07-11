@@ -1,0 +1,31 @@
+version: '3.8'
+services:
+  myapp:
+    build:
+      context: ./../../
+      dockerfile: Dockerfile
+    ports:
+      - 8080:8080
+    env_file:
+      - ./../../.env
+    environment:
+      - DB_HOST=neo4j
+    volumes:
+      - ./app/data:/app/data
+    depends_on:
+      - neo4j
+
+  neo4j:
+    image: neo4j:4.4.23-community
+    ports:
+      - 7474:7474
+      - 7687:7687
+    restart: unless-stopped
+    environment:
+      - NEO4J_AUTH=neo4j/password
+    volumes:
+      - ./neo4j.conf:/conf/neo4j.conf # This is the main configuration file.
+      - ./data/app:/var/lib/neo4j/data
+      - ./logs/app:/var/lib/neo4j/logs
+      - ./conf/app:/var/lib/neo4j/conf
+      - ./import/app:/var/lib/neo4j/import
