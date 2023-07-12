@@ -15,15 +15,24 @@ It also employs various libraries:
 - [GoDotEnv](https://github.com/joho/godotenv)
   
 ## Get Started
+### Enviroment variables (.env)
+Before starting the program, you need to set the `.env` file first:
+1. Create `.env` file in the root directory
+2. Copy the enviroment variables from `.env.example`
+3. Fill the variables
 ### Docker
 To start this project in docker:
-1. Build the Docker Compose first
+1. Open Docker Directory at `/config/docker`
+   ```
+   cd config/docker
+   ```
+2. Build the Docker Compose first
    ```
    docker compose build
    ```
-2. Execute the Docker Compose useing 'up' command
+3. Execute the Docker Compose using 'up' command
    ```
-   docker compose up
+   docker compose --env-file ./../../.env up
    ```
    this docker will run in port `80`
 
@@ -31,10 +40,29 @@ To start this project in docker:
   ```
   docker compose down
   ```
-- Migrate Database in Docker
-  ```
-  docker run -v {{ migration dir }}:/config/migrations --network host migrate/migrate -path=/config/migrations/ -database mysql://user:password@tcp(host:port)/dbname?query up
-  ```
+### Database Migrations
+Ensure that you have installed [go-migrate](https://github.com/golang-migrate/migrate). Before migrating the database, create a database in your MySQL.  
+To run the database migrations:
+- UP Migration
   ```
   migrate -database ${NEO4J_URL} -path db/migrations up
   ```
+- DOWN Migration
+  ```
+  migrate -database ${NEO4J_URL} -path db/migrations down
+  ```
+> Note: in your local computer (without using docker) you need to add NEO4J_URL as enviroment variable
+ ```
+export NEO4J_URL="neo4j://user:password@host:port/"
+ ```
+
+ #### Migrate Database on Docker
+1. Get golang app docker image id
+   ```
+   docker ps
+   ```
+2. Open the docker image command
+   ```
+   docker exec -it <image_id> /bin/bash
+   ```
+3. run migratons command

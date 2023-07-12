@@ -10,6 +10,7 @@ services:
       - ./../../.env
     environment:
       - DB_HOST=neo4j
+      - NEO4J_URL="neo4j://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/"
     volumes:
       - ./app/data:/app/data
     depends_on:
