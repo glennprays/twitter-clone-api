@@ -3,6 +3,7 @@
 This project just a simple implementation of a social media platform similar to [Twitter](https://www.twitter.com).  
 The API provides several functionalities for a single role, <b>User</b>, allowing them to perform the following actions:
 - <b>Post a Tweet</b>: Users can create and share their own tweets with the community.
+- <b>Embed Image, Video, Audio in Tweet</b>
 - <b>Like a Tweet</b>: Users have the ability to like or endorse a tweet posted by another user.
 - <b>Re-Tweet a Tweet</b>: Users can share someone else's tweet on their own profile, giving credit to the original author.
 - <b>Quotation Re-Tweet a Tweet</b>: Users can retweet a tweet while adding their own comment or perspective to it.
@@ -41,17 +42,21 @@ To start this project in docker:
   docker compose down
   ```
 ### Database Migrations
-Ensure that you have installed [go-migrate](https://github.com/golang-migrate/migrate). Before migrating the database, create a database in your MySQL.  
+Ensure that you have installed [go-migrate](https://github.com/golang-migrate/migrate). Before migrating the database, create a database in your MySQL.
+To create migrations file:
+```
+migrate create -ext cypher -dir config/migrator -seq <migrator_name>
+```  
 To run the database migrations:
 - UP Migration
   ```
-  migrate -database ${NEO4J_URL} -path db/migrations up
+  migrate -database ${NEO4J_URL} -path config/migrator up
   ```
 - DOWN Migration
   ```
-  migrate -database ${NEO4J_URL} -path db/migrations down
+  migrate -database ${NEO4J_URL} -path config/migrator -verbose down
   ```
-> Note: in your local computer (without using docker) you need to add NEO4J_URL as enviroment variable
+> Note: in your local computer (without using docker) you need to add NEO4J_URL as enviroment variable. By default the user & password is `neo4j`
  ```
 export NEO4J_URL="neo4j://user:password@host:port/"
  ```
@@ -65,4 +70,4 @@ export NEO4J_URL="neo4j://user:password@host:port/"
    ```
    docker exec -it <image_id> /bin/bash
    ```
-3. run migratons command
+3. run migrations command
