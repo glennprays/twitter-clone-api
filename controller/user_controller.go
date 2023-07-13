@@ -60,3 +60,17 @@ func LogoutAccount(c *gin.Context) {
 		Message: "Logout successful",
 	})
 }
+
+func WhoAmI(c *gin.Context) {
+
+	username, role, err := middleware.GetUsernameAndRoleFromCookie(c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+	responseData := models.BasicUser{
+		Username: username,
+		Role:     role,
+	}
+	c.JSON(http.StatusOK, responseData)
+}

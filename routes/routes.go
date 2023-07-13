@@ -28,6 +28,7 @@ func SetupRouter() *gin.Engine {
 				"message": "Welcome to Twitter-clone",
 			})
 		})
+		api.GET("/whoami", controller.WhoAmI)
 		api.DELETE("/auth/logout", middleware.AuthMiddleware("user"), controller.LogoutAccount)
 		user := api.Group("/user")
 		{
