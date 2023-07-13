@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"twitter-clone-api/config/database"
 	"twitter-clone-api/controller"
+	"twitter-clone-api/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -27,6 +28,7 @@ func SetupRouter() *gin.Engine {
 				"message": "Welcome to Twitter-clone",
 			})
 		})
+		api.DELETE("/auth/logout", middleware.AuthMiddleware("user"), controller.LogoutAccount)
 		user := api.Group("/user")
 		{
 			user.POST("/auth/login", controller.LoginUser)
