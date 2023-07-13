@@ -21,3 +21,8 @@
 go.work
 
 .env
+# app directory
+app/
+
+.air.toml
+tmp/
