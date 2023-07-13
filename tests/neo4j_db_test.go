@@ -26,7 +26,12 @@ func TestConnectDB(t *testing.T) {
 	defer driver.Close(ctx)
 
 	session := driver.NewSession(ctx, neo4j.SessionConfig{})
+	_, err = session.Run(ctx, "RETURN 1", nil)
+	if err != nil {
+		t.Fatalf("Failed to execute test query: %v", err)
+	}
 	if err := session.Close(ctx); err != nil {
 		t.Fatalf("Failed to close Neo4j session: %v", err)
 	}
+	t.Log("Successfully connected to the Neo4j database.")
 }
