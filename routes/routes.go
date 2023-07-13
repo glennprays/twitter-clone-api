@@ -27,6 +27,11 @@ func SetupRouter() *gin.Engine {
 				"message": "Welcome to Twitter-clone",
 			})
 		})
+		user := api.Group("/user")
+		{
+			user.POST("/auth/login", controller.LoginUser)
+
+		}
 	}
 
 	return router
