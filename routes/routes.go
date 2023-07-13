@@ -33,7 +33,7 @@ func SetupRouter() *gin.Engine {
 		user := api.Group("/user")
 		{
 			user.POST("/auth/login", controller.LoginUser)
-
+			user.POST("/tweets", middleware.AuthMiddleware("user"), controller.PostTweet)
 		}
 	}
 
