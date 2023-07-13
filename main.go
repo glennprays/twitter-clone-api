@@ -15,7 +15,7 @@ func init() {
 		log.Fatal("Error loading .env file")
 	}
 
-	dirPath := "/app/data/files"
+	dirPath := os.Getenv("FILES_LOCATION")
 	_, err = os.Stat(dirPath)
 	if os.IsNotExist(err) {
 		// Directory doesn't exist, create it

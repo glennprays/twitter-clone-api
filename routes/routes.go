@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"twitter-clone-api/config/database"
+	"twitter-clone-api/controller"
 
 	"github.com/gin-gonic/gin"
 )
@@ -11,6 +12,7 @@ import (
 func SetupRouter() *gin.Engine {
 	router := gin.Default()
 
+	router.GET("data/files/:filename", controller.GetFile)
 	api := router.Group("/api")
 	{
 		api.GET("/", func(c *gin.Context) {
