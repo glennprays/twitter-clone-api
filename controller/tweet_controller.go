@@ -96,7 +96,7 @@ func PostTweet(c *gin.Context) {
 	}
 	audioHeaders := c.Request.MultipartForm.File["audios[]"]
 	if len(audioHeaders) > 0 {
-		createdTweet.Audio_urls = uploadTweetAudio(c, session, tweet.ID, audioHeaders)
+		createdTweet.Audio_urls = uploadTweetAudio(c, session, createdTweet.ID, audioHeaders)
 	}
 	createdTweet.Content = tweet.Content
 	c.JSON(http.StatusOK, createdTweet)
@@ -140,6 +140,7 @@ func uploadTweetVideo(c *gin.Context, session neo4j.SessionWithContext, tweetId 
 	return videoURLs
 }
 func uploadTweetAudio(c *gin.Context, session neo4j.SessionWithContext, tweetId *int64, audioHeaders []*multipart.FileHeader) []*string {
+	fmt.Println("masuk audio")
 	query := `
 	MATCH (t:Tweet) WHERE id(t) = $tweetId
 	CREATE (au:Audio {
@@ -172,6 +173,7 @@ func uploadTweetFile(c *gin.Context, session neo4j.SessionWithContext, query str
 
 	url, err := getFileURL(c, filename)
 	if err == nil {
+		fmt.Println(query)
 		_, err = session.Run(c,
 			query,
 			map[string]interface{}{
