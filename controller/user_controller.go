@@ -52,3 +52,25 @@ func LoginUser(c *gin.Context) {
 
 	c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
 }
+
+func LogoutAccount(c *gin.Context) {
+	middleware.ResetUserToken(c)
+	c.JSON(http.StatusOK, models.Response{
+		Status:  200,
+		Message: "Logout successful",
+	})
+}
+
+func WhoAmI(c *gin.Context) {
+
+	username, role, err := middleware.GetUsernameAndRoleFromCookie(c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+	responseData := models.BasicUser{
+		Username: username,
+		Role:     role,
+	}
+	c.JSON(http.StatusOK, responseData)
+}
