@@ -3,10 +3,16 @@ package main
 import (
 	"fmt"
 	"log"
+<<<<<<< Updated upstream
 	"os"
 	"twitter-clone-api/routes"
+=======
+	"twitter-clone-api-Copy/routes"
+>>>>>>> Stashed changes
 
+	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"github.com/neo4j/neo4j-go-driver/v5/neo4j"
 )
 
 func init() {
@@ -29,6 +35,16 @@ func init() {
 
 func main() {
 	// run the router
-	r := routes.SetupRouter()
+	driver, err := neo4j.NewDriver("neo4j://localhost:7687", neo4j.BasicAuth("neo4j", "12345678", ""))
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer driver.Close()
+
+	r := gin.Default()
+	r.GET("/people", routes.GetPeopleHandler(driver))
+	r.POST("/people", routes.CreateUserHandler(driver))
 	r.Run(":8080")
+	log.Println("Server started on http://localhost:8080")
+	log.Fatal(r.Run(":8080"))
 }

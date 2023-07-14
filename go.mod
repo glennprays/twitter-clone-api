@@ -1,4 +1,4 @@
-module twitter-clone-api
+module twitter-clone-api-Copy
 
 go 1.20
 
@@ -6,6 +6,7 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.9.1
 	github.com/joho/godotenv v1.5.1
+	github.com/neo4j/neo4j-go-driver/v4 v4.4.7
 	github.com/neo4j/neo4j-go-driver/v5 v5.10.0
 )
 
