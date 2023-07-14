@@ -28,7 +28,6 @@ func init() {
 }
 
 func main() {
-
 	// run the router
 	r := routes.SetupRouter()
 	r.Run(":8080")

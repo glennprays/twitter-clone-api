@@ -2,6 +2,7 @@ package routes
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"twitter-clone-api/config/database"
 	"twitter-clone-api/controller"
@@ -24,6 +25,7 @@ func SetupRouter() *gin.Engine {
 				fmt.Println("Success Connect to DB")
 			}
 			driver.Close(c)
+			log.Println(c.Request.Host)
 			c.JSON(http.StatusOK, gin.H{
 				"message": "Welcome to Twitter-clone",
 			})

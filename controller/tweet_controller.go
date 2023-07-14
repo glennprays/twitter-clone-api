@@ -1,8 +1,14 @@
 package controller
 
 import (
+	"encoding/json"
+	"fmt"
 	"log"
+	"mime"
+	"mime/multipart"
 	"net/http"
+	"path/filepath"
+	"strings"
 	"time"
 	"twitter-clone-api/config/database"
 	"twitter-clone-api/middleware"
@@ -24,7 +30,9 @@ func PostTweet(c *gin.Context) {
 	defer session.Close(c)
 
 	var tweet models.Tweet
-	if err := c.ShouldBindJSON(&tweet); err != nil {
+	jsonData := c.PostForm("data")
+
+	if err := json.Unmarshal([]byte(jsonData), &tweet); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -56,8 +64,9 @@ func PostTweet(c *gin.Context) {
 		return
 	}
 
+	var createdTweet models.Tweet
 	if result.Next(c) {
-		var createdTweet models.Tweet
+		createdTweet.Content = tweet.Content
 		nodeID, ok := result.Record().Get("nodeId")
 		if ok {
 			nodeID, ok := nodeID.(int64)
@@ -72,8 +81,110 @@ func PostTweet(c *gin.Context) {
 				createdTweet.Timestamp = &timestamp
 			}
 		}
-		createdTweet.Content = tweet.Content
-		c.JSON(http.StatusOK, createdTweet)
+
+	}
+	imageHeaders := c.Request.MultipartForm.File["images[]"]
+	fmt.Println("after")
+	if len(imageHeaders) > 0 {
+		fmt.Println("image embedded")
+		createdTweet.Image_urls = uploadTweetImages(c, session, createdTweet.ID, imageHeaders)
 	}
 
+	videoHeaders := c.Request.MultipartForm.File["videos[]"]
+	if len(videoHeaders) > 0 {
+		createdTweet.Video_urls = uploadTweetVideo(c, session, createdTweet.ID, videoHeaders)
+	}
+	audioHeaders := c.Request.MultipartForm.File["audios[]"]
+	if len(audioHeaders) > 0 {
+		createdTweet.Audio_urls = uploadTweetAudio(c, session, tweet.ID, audioHeaders)
+	}
+	createdTweet.Content = tweet.Content
+	c.JSON(http.StatusOK, createdTweet)
+}
+
+func uploadTweetImages(c *gin.Context, session neo4j.SessionWithContext, tweetId *int64, imageHeaders []*multipart.FileHeader) []*string {
+	query := `
+	MATCH (t:Tweet) WHERE id(t) = $tweetId
+	CREATE (img:Image {
+		filename: $filename,
+		timestamp: datetime()
+	})
+	CREATE (t)-[:EMBEDDED]->(img)
+	`
+	var imageURLs []*string
+	for _, imageHeader := range imageHeaders {
+		url := uploadTweetFile(c, session, query, tweetId, "image", imageHeader)
+		if url != "" {
+			imageURLs = append(imageURLs, &url)
+		}
+	}
+	return imageURLs
+}
+
+func uploadTweetVideo(c *gin.Context, session neo4j.SessionWithContext, tweetId *int64, videoHeaders []*multipart.FileHeader) []*string {
+	query := `
+	MATCH (t:Tweet) WHERE id(t) = $tweetId
+	CREATE (vd:Video {
+		filename: $filename,
+		timestamp: datetime()
+	})
+	CREATE (t)-[:EMBEDDED]->(vd)
+	`
+	var videoURLs []*string
+	for _, videoHeader := range videoHeaders {
+		url := uploadTweetFile(c, session, query, tweetId, "video", videoHeader)
+		if url != "" {
+			videoURLs = append(videoURLs, &url)
+		}
+	}
+	return videoURLs
+}
+func uploadTweetAudio(c *gin.Context, session neo4j.SessionWithContext, tweetId *int64, audioHeaders []*multipart.FileHeader) []*string {
+	query := `
+	MATCH (t:Tweet) WHERE id(t) = $tweetId
+	CREATE (au:Audio {
+		filename: $filename,
+		timestamp: datetime()
+	})
+	CREATE (t)-[:EMBEDDED]->(au)
+	`
+	var audioURLs []*string
+	for _, audioHeader := range audioHeaders {
+		url := uploadTweetFile(c, session, query, tweetId, "audio", audioHeader)
+		if url != "" {
+			audioURLs = append(audioURLs, &url)
+		}
+	}
+	return audioURLs
+}
+
+func uploadTweetFile(c *gin.Context, session neo4j.SessionWithContext, query string, tweetId *int64, fileFormat string, imageHeader *multipart.FileHeader) string {
+	fileType := mime.TypeByExtension(filepath.Ext(imageHeader.Filename))
+	if !strings.HasPrefix(fileType, (fileFormat + "/")) {
+		return ""
+	}
+
+	filename, err := uploadFile(imageHeader)
+	if err != nil {
+		log.Println(err)
+		return ""
+	}
+
+	url, err := getFileURL(c, filename)
+	if err == nil {
+		_, err = session.Run(c,
+			query,
+			map[string]interface{}{
+				"tweetId":  tweetId,
+				"filename": filename,
+			})
+		if err != nil {
+			log.Println(err)
+			return ""
+		}
+		return url
+	} else {
+		fmt.Println(err)
+		return ""
+	}
 }
