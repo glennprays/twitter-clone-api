@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"io"
 	"mime"
 	"mime/multipart"
@@ -61,17 +60,13 @@ func getFilePath(filename string) (string, error) {
 	return filePath, nil
 }
 
-func getFileURL(filename string) (string, error) {
-	hostname, err := os.Hostname()
-	if err != nil {
-		fmt.Println("Failed to get hostname:", err)
-		return "", err
-	}
-	_, err = getFilePath(filename)
+func getFileURL(c *gin.Context, filename string) (string, error) {
+	hostname := c.Request.Host
+	_, err := getFilePath(filename)
 	if err != nil {
 		return "", err
 	}
-	return hostname + "/files/" + filename, nil
+	return hostname + "/data/files/" + filename, nil
 
 }
 
