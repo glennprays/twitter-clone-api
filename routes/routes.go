@@ -37,6 +37,8 @@ func SetupRouter() *gin.Engine {
 			user.POST("/auth/login", controller.LoginUser)
 			user.POST("/tweets", middleware.AuthMiddleware("user"), controller.PostTweet)
 			user.POST("/tweets/:tweetID/like", middleware.AuthMiddleware("user"), controller.LikeTweet)
+			user.DELETE("/tweets/:tweetID/unlike", middleware.AuthMiddleware("user"), controller.UnLikeTweet)
+			user.GET("/tweets/:tweetID/likes", middleware.AuthMiddleware("user"), controller.GetTweetLikes)
 		}
 	}
 
