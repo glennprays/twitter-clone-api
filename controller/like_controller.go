@@ -33,7 +33,7 @@ func LikeTweet(c *gin.Context) {
 	query := `
 		MATCH (u:User { username: $username }), (t:Tweet)
 		WHERE id(t) = $tweetID
-		CREATE (u)-[:LIKES { timestamp: datetime() }]->(t)
+		MERGE (u)-[:LIKES { timestamp: datetime() }]->(t)
 	`
 
 	result, err := session.Run(c, query, map[string]interface{}{
