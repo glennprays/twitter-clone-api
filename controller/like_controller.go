@@ -95,7 +95,7 @@ func UnLikeTweet(c *gin.Context) {
 	})
 	if err != nil {
 		log.Println(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to like"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to Unlike"})
 		return
 	}
 
@@ -104,7 +104,7 @@ func UnLikeTweet(c *gin.Context) {
 		log.Println(result.Err())
 		c.JSON(http.StatusOK, gin.H{"message": "Tweet unliked"})
 	} else {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to like tweet"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to unlike tweet"})
 	}
 }
 
