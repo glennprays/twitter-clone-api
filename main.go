@@ -3,12 +3,8 @@ package main
 import (
 	"fmt"
 	"log"
-<<<<<<< Updated upstream
 	"os"
 	"twitter-clone-api/routes"
-=======
-	"twitter-clone-api-Copy/routes"
->>>>>>> Stashed changes
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"

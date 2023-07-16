@@ -4,13 +4,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-<<<<<<< Updated upstream
 	"twitter-clone-api/config/database"
 	"twitter-clone-api/controller"
 	"twitter-clone-api/middleware"
-=======
-	"twitter-clone-api-Copy/config/database"
->>>>>>> Stashed changes
 
 	"github.com/gin-gonic/gin"
 )
