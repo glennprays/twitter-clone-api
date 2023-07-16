@@ -18,7 +18,7 @@ import (
 	"github.com/neo4j/neo4j-go-driver/v5/neo4j"
 )
 
-func PostTweet(c *gin.Context) {
+func PostTweetHandler(c *gin.Context) {
 	driver, err := database.ConnectDB()
 	if err != nil {
 		log.Fatal(err)
@@ -39,17 +39,47 @@ func PostTweet(c *gin.Context) {
 
 	username, _, _ := middleware.GetUsernameAndRoleFromCookie(c)
 
+	createdTweet, err := postTweet(c, session, tweet, username)
+	if err != nil {
+		log.Println(err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+	} else {
+		c.JSON(http.StatusOK, createdTweet)
+	}
+
+}
+
+func uploadTweetImages(c *gin.Context, session neo4j.SessionWithContext, tweetId *int64, imageHeaders []*multipart.FileHeader) []*string {
 	query := `
-		MATCH (u:User { username: $username })
-
-		CREATE (t:Tweet {
-		content: $content,
+	MATCH (t:Tweet) WHERE id(t) = $tweetId
+	CREATE (img:Image {
+		filename: $filename,
 		timestamp: datetime()
-		})
-
-		CREATE (u)-[:POSTED]->(t)
-		return id(t) as nodeId, t.timestamp as timestamp
+	})
+	CREATE (t)-[:EMBEDDED]->(img)
 	`
+	var imageURLs []*string
+	for _, imageHeader := range imageHeaders {
+		url := uploadTweetFile(c, session, query, tweetId, "image", imageHeader)
+		if url != "" {
+			imageURLs = append(imageURLs, &url)
+		}
+	}
+	return imageURLs
+}
+
+func postTweet(c *gin.Context, session neo4j.SessionWithContext, tweet models.Tweet, username string) (models.Tweet, error) {
+	query := `
+	MATCH (u:User { username: $username })
+
+	CREATE (t:Tweet {
+	content: $content,
+	timestamp: datetime()
+	})
+
+	CREATE (u)-[:POSTED]->(t)
+	return id(t) as nodeId, t.timestamp as timestamp
+`
 
 	result, err := session.Run(c,
 		query,
@@ -61,7 +91,7 @@ func PostTweet(c *gin.Context) {
 	if err != nil {
 		log.Fatal(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create tweet"})
-		return
+		return models.Tweet{}, err
 	}
 
 	var createdTweet models.Tweet
@@ -84,41 +114,23 @@ func PostTweet(c *gin.Context) {
 
 	}
 	imageHeaders := c.Request.MultipartForm.File["images[]"]
-	fmt.Println("after")
 	if len(imageHeaders) > 0 {
-		fmt.Println("image embedded")
 		createdTweet.Image_urls = uploadTweetImages(c, session, createdTweet.ID, imageHeaders)
+		fmt.Println("image embedded")
 	}
 
 	videoHeaders := c.Request.MultipartForm.File["videos[]"]
 	if len(videoHeaders) > 0 {
 		createdTweet.Video_urls = uploadTweetVideo(c, session, createdTweet.ID, videoHeaders)
+		fmt.Println("video embedded")
 	}
 	audioHeaders := c.Request.MultipartForm.File["audios[]"]
 	if len(audioHeaders) > 0 {
 		createdTweet.Audio_urls = uploadTweetAudio(c, session, createdTweet.ID, audioHeaders)
+		fmt.Println("audio embedded")
 	}
-	createdTweet.Content = tweet.Content
-	c.JSON(http.StatusOK, createdTweet)
-}
 
-func uploadTweetImages(c *gin.Context, session neo4j.SessionWithContext, tweetId *int64, imageHeaders []*multipart.FileHeader) []*string {
-	query := `
-	MATCH (t:Tweet) WHERE id(t) = $tweetId
-	CREATE (img:Image {
-		filename: $filename,
-		timestamp: datetime()
-	})
-	CREATE (t)-[:EMBEDDED]->(img)
-	`
-	var imageURLs []*string
-	for _, imageHeader := range imageHeaders {
-		url := uploadTweetFile(c, session, query, tweetId, "image", imageHeader)
-		if url != "" {
-			imageURLs = append(imageURLs, &url)
-		}
-	}
-	return imageURLs
+	return createdTweet, nil
 }
 
 func uploadTweetVideo(c *gin.Context, session neo4j.SessionWithContext, tweetId *int64, videoHeaders []*multipart.FileHeader) []*string {
