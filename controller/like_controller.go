@@ -29,16 +29,7 @@ func LikeTweet(c *gin.Context) {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	// tweetID := c.Param("tweetID")
-	// tweetID := 32
 
-	// query := `
-	// MATCH (u:User { username: $username })
-	// MATCH (t:Tweet)
-	// WHERE id(t) = $tweetID
-	// CREATE (u)-[:LIKES { timestamp: datetime() }]->(t)
-	// return id(t)
-	// `
 	query := `
 		MATCH (u:User { username: $username }), (t:Tweet)
 		WHERE id(t) = $tweetID

@@ -36,11 +36,11 @@ func SetupRouter() *gin.Engine {
 		{
 			user.POST("/auth/login", controller.LoginUser)
 			user.POST("/tweets", middleware.AuthMiddleware("user"), controller.PostTweet)
-			user.POST("/tweets/:tweetID/like", middleware.AuthMiddleware("user"), controller.LikeTweet)
-			user.DELETE("/tweets/:tweetID/unlike", middleware.AuthMiddleware("user"), controller.UnLikeTweet)
+			user.POST("/tweets/:tweetID/likes", middleware.AuthMiddleware("user"), controller.LikeTweet)
+			user.DELETE("/tweets/:tweetID/likes", middleware.AuthMiddleware("user"), controller.UnLikeTweet)
 			user.GET("/tweets/:tweetID/likes", middleware.AuthMiddleware("user"), controller.GetTweetLikes)
-			user.POST("/:userID/follow", middleware.AuthMiddleware("user"), controller.FollowUser)
-			user.DELETE("/:userID/unfollow", middleware.AuthMiddleware("user"), controller.UnFollowUser)
+			user.POST("/:userID/follows", middleware.AuthMiddleware("user"), controller.FollowUser)
+			user.DELETE("/:userID/follows", middleware.AuthMiddleware("user"), controller.UnFollowUser)
 			user.GET("/:userID/followers", middleware.AuthMiddleware("user"), controller.GetFollowers)
 			user.GET("/:userID/following", middleware.AuthMiddleware("user"), controller.GetFollowing)
 		}
