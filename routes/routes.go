@@ -32,6 +32,8 @@ func SetupRouter() *gin.Engine {
 		})
 		api.GET("/whoami", controller.WhoAmI)
 		api.DELETE("/auth/logout", middleware.AuthMiddleware("user"), controller.LogoutAccount)
+		api.GET("/users", controller.GetUserHandler)
+		api.POST("/signup", controller.CreateUserHandler)
 		user := api.Group("/user")
 		{
 			user.POST("/auth/login", controller.LoginUser)

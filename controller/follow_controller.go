@@ -31,8 +31,8 @@ func FollowUser(c *gin.Context) {
 	}
 	query := `
 		MATCH (u:User { username: $username }), (t:User)
-		WHERE id(t) = $userID
-		CREATE (u)-[:FOLLOWS]->(t)
+		WHERE id(t) = $userID AND u.username <> t.username
+		MERGE (u)-[:FOLLOWS]->(t)
 	`
 
 	result, err := session.Run(c, query, map[string]interface{}{
