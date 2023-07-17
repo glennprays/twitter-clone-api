@@ -10,3 +10,8 @@ type Tweet struct {
 	Video_urls []*string  `json:"video_urls"`
 	Audio_urls []*string  `json:"audio_urls"`
 }
+
+type QuoteTweet struct {
+	Tweet
+	Quoted Tweet `json:"quoted"`
+}
