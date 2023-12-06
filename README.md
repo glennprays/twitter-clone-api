@@ -1,3 +1,4 @@
+[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
 # Twitter Clone API
 
 This project just a simple implementation of a social media platform similar to [Twitter](https://www.twitter.com).  
